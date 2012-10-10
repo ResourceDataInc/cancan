@@ -219,12 +219,18 @@ module CanCan
       message.blank? ? nil : message
     end
 
-    def attributes_for(action, subject)
-      attributes = {}
-      relevant_rules(action, subject).map do |rule|
-        attributes.merge!(rule.attributes_from_conditions) if rule.base_behavior
+    def attributes_for(action, subject, conditions = true)
+      if(conditions)
+        attributes = {}
+        relevant_rules(action, subject).map do |rule|
+          attributes.merge!(rule.attributes_from_conditions) if rule.base_behavior
+        end
+        return attributes
+      else
+        return relevant_rules(action, subject).map do |rule|
+          rule.try(:attributes)
+        end.flatten.compact
       end
-      attributes
     end
 
     def has_block?(action, subject)
